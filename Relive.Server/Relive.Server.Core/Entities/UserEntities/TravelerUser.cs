@@ -1,6 +1,6 @@
 ﻿namespace Relive.Server.Core.Entities.UserEntities
 {
-    public class TravellerUser: User
+    public class TravelerUser: User
     {
         public string ProfilePictureLink { get; set; }
     }

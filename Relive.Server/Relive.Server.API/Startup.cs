@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Relive.Server.Infrastructure;
 
 namespace Relive.Server.API
 {
@@ -26,7 +27,7 @@ namespace Relive.Server.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            ConfigureDependencies.ConfigureServices(Configuration, services);
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
