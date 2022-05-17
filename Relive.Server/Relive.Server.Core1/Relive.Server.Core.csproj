@@ -5,9 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Aggregates\" />
-    <Folder Include="Intefaces\" />
-    <Folder Include="Specifications\" />
+    <Compile Remove="Aggregates\**" />
+    <EmbeddedResource Remove="Aggregates\**" />
+    <None Remove="Aggregates\**" />
   </ItemGroup>
 
 </Project>
