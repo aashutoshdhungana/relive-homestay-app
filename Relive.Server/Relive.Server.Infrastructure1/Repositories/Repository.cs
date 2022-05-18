@@ -1,7 +1,10 @@
-﻿using Relive.Server.Core.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Relive.Server.Core.Entities;
 using Relive.Server.Core.Intefaces;
 using Relive.Server.Core.Interfaces;
+using Relive.Server.Core.UserAggregate;
 using Relive.Server.Infrastructure.Data;
+using Relive.Server.Infrastructure.Specification;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,10 +31,9 @@ namespace Relive.Server.Infrastructure.Repositories
             _context.Set<TEntity>().Remove(entity);
         }
 
-        public Task<IEnumerable<TEntity>> GetAsync(ISpecification<TEntity> specification)
+        public async Task<IEnumerable<TEntity>> GetAsync(ISpecification<TEntity> specification)
         {
-            // TODO: Implement specification based filter.
-            throw new NotImplementedException();
+            return await SpecificationEvaluator<TEntity>.GetQuery(_context.Set<TEntity>().AsQueryable(), specification).ToListAsync();
         }
 
         public async Task<TEntity> GetById(object id)

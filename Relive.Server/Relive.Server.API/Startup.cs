@@ -29,6 +29,8 @@ namespace Relive.Server.API
         {
             ConfigureDependencies.ConfigureServices(Configuration, services);
             services.AddControllers();
+            var secret = Configuration.GetSection("JWT").GetSection("AppSecret").Value;
+            services.AddAuthentication().AddJwtBearer();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Relive.Server.API", Version = "v1" });

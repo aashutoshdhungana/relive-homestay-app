@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Relive.Server.Core.Entities.UserEntities;
+using Relive.Server.Core.UserAggregate;
 
 namespace Relive.Server.Infrastructure.Data
 {
