@@ -12,6 +12,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Relive.Server.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Relive.Server.API
 {
@@ -30,7 +34,18 @@ namespace Relive.Server.API
             ConfigureDependencies.ConfigureServices(Configuration, services);
             services.AddControllers();
             var secret = Configuration.GetSection("JWT").GetSection("AppSecret").Value;
-            services.AddAuthentication().AddJwtBearer();
+            services.AddAuthentication(x => x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(option =>
+                {
+                    option.SaveToken = true;
+                    option.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret)),
+                        ValidateIssuerSigningKey = true,
+                        ValidateIssuer = false
+                    };
+                }
+            );
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Relive.Server.API", Version = "v1" });
@@ -50,6 +65,8 @@ namespace Relive.Server.API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
