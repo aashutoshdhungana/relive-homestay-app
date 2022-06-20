@@ -1,5 +1,6 @@
 ﻿using Relive.Server.Core.Entities;
 using Relive.Server.Core.Intefaces;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Relive.Server.Core.UserAggregate
@@ -36,12 +37,13 @@ namespace Relive.Server.Core.UserAggregate
         {
         }
 
-        public User(string firstName, string lastName, string email,
+        public User(Guid id, string firstName, string lastName, string email,
             string phone, bool isTraveller, bool isHost, bool isAdmin, string password)
         {
-            FirstName = firstName;
-            LastName = lastName;
-            Email = email;
+            Id = id;
+            FirstName = firstName.ToUpper();
+            LastName = lastName.ToUpper();
+            Email = email.ToUpper();
             Phone = phone;
             if (isTraveller)
             {
@@ -62,6 +64,7 @@ namespace Relive.Server.Core.UserAggregate
                 IsAdmin = true;
             }
             Password = password;
+            IsDeleted = false;
         }
 
         public void AddHostProfile()

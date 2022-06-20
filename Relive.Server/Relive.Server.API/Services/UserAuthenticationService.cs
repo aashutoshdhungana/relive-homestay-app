@@ -22,13 +22,13 @@ namespace Relive.Server.API.Services
         public string GenerateToken(User user, UserTypes userType)
         {
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-            string tokenKey = _iConfiguration.GetSection("JWT").GetValue<string>("AppSecret");
+            string tokenKey = _iConfiguration["JWT:AppSecret"];
             SecurityTokenDescriptor tokenDescriptor = new()
             {
                 Expires = DateTime.UtcNow.AddMinutes(10),
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim("UserId", user.Id.ToString()),
+                    new Claim("userid", user.Id.ToString()),
                     new Claim(ClaimTypes.Role, userType.ToString())
                 }),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenKey)), SecurityAlgorithms.HmacSha256Signature)

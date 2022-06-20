@@ -15,10 +15,10 @@ namespace Relive.Server.API.DTOs.UserDTOs
         [Required]
         public string Password { get; set; }
         [Required]
-        public string IsAdmin { get; set; }
+        public bool IsAdmin { get; set; }
         [Required]
-        public string IsHost { get; set; }
+        public bool IsHost { get; set; }
         [Required]
-        public string IsTraveller { get; set; }
+        public bool IsTraveller { get; set; }
     }
 }
