@@ -1,5 +1,5 @@
 ﻿using Relive.Server.Core.Entities;
-using Relive.Server.Core.Intefaces;
+using Relive.Server.Core.Interfaces;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -14,7 +14,7 @@ namespace Relive.Server.Core.UserAggregate
         [MaxLength(35)]
         public string LastName { get; set; }
         [Required]
-        [RegularExpression("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")]
+        [EmailAddress]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
         [Required]
@@ -64,7 +64,6 @@ namespace Relive.Server.Core.UserAggregate
                 IsAdmin = true;
             }
             Password = password;
-            IsDeleted = false;
         }
 
         public void AddHostProfile()

@@ -16,11 +16,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Relive.Server.Core.Intefaces;
+using Relive.Server.Core.Interfaces;
 using Relive.Server.Infrastructure.Repositories;
 using Relive.Server.Core.UserAggregate;
 using Relive.Server.API.Services;
 using Swashbuckle.AspNetCore.Swagger;
+using Relive.Server.API.Mapper;
+using AutoMapper;
 
 namespace Relive.Server.API
 {
@@ -53,6 +55,10 @@ namespace Relive.Server.API
                     ValidateAudience = false,
                     ValidateLifetime = true
                 };
+            }).AddGoogle( googleOptions => 
+            {
+                googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
+                googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
             });
 
             services.AddSwaggerGen(c =>
@@ -83,6 +89,13 @@ namespace Relive.Server.API
 
             services.AddScoped<IRepository<User>, Repository<User>>();
             services.AddScoped<UserAuthenticationService>();
+
+            var mapConfig = new MapperConfiguration(options =>
+            {
+                options.AddProfile<MapperProfile>();
+            });
+            IMapper mapper = mapConfig.CreateMapper();
+            services.AddSingleton(mapper);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

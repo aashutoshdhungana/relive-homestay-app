@@ -1,4 +1,4 @@
-﻿namespace Relive.Server.Core.Intefaces
+﻿namespace Relive.Server.Core.Interfaces
 {
     public interface IAggregateRoot
     {

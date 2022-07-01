@@ -9,8 +9,8 @@ using Relive.Server.Infrastructure.Data;
 namespace Relive.Server.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20220518082308_CleanUpdate")]
-    partial class CleanUpdate
+    [Migration("20220630135915_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -41,9 +41,6 @@ namespace Relive.Server.Infrastructure.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("IsAdmin")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("LastName")

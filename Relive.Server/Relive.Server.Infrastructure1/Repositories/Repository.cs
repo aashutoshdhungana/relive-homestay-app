@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Relive.Server.Core.Entities;
-using Relive.Server.Core.Intefaces;
 using Relive.Server.Core.Interfaces;
 using Relive.Server.Core.UserAggregate;
 using Relive.Server.Infrastructure.Data;
@@ -20,7 +19,7 @@ namespace Relive.Server.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task Delete(object id)
+        public async Task DeleteAsync(object id)
         {
             TEntity entity = await _context.Set<TEntity>().FindAsync(id);
             _context.Set<TEntity>().Remove(entity);
@@ -36,7 +35,7 @@ namespace Relive.Server.Infrastructure.Repositories
             return await SpecificationEvaluator<TEntity>.GetQuery(_context.Set<TEntity>().AsQueryable(), specification).ToListAsync();
         }
 
-        public async Task<TEntity> GetById(object id)
+        public async Task<TEntity> GetByIdAsync(object id)
         {
             TEntity entity = await _context.Set<TEntity>().FindAsync(id);
             return entity;
