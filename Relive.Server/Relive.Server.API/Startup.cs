@@ -55,10 +55,6 @@ namespace Relive.Server.API
                     ValidateAudience = false,
                     ValidateLifetime = true
                 };
-            }).AddGoogle( googleOptions => 
-            {
-                googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
-                googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
             });
 
             services.AddSwaggerGen(c =>

@@ -89,6 +89,7 @@ namespace Relive.Server.API.Controllers
             }
         }
 
+        [Authorize]
         [HttpPatch]
         [Route("Edit/{id:Guid}")]
         public async Task<IActionResult> UpdateUserAsync(Guid id, [FromBody] UserUpdate user)
