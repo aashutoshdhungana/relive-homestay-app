@@ -19,16 +19,18 @@ namespace Relive.Server.API.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly IAuthorizationService _authorizationService;
         private readonly UserAuthenticationService _userAuthenticationService;
         private readonly IRepository<User> _userRepository;
         private readonly ILogger<User> _logger;
         private readonly IMapper _mapper;
-        public UserController(UserAuthenticationService userAuthenticationService, IRepository<User> userRepository,IMapper mapper, ILogger<User> logger)
+        public UserController(UserAuthenticationService userAuthenticationService, IRepository<User> userRepository,IMapper mapper, ILogger<User> logger, IAuthorizationService authorizationService)
         {
             _userAuthenticationService = userAuthenticationService;
             _userRepository = userRepository;
             _logger = logger;
             _mapper = mapper;
+            _authorizationService = authorizationService;
         }
 
         [HttpPost]
@@ -104,11 +106,23 @@ namespace Relive.Server.API.Controllers
                 user.Password = (user.Password == null) ? null : _userAuthenticationService.HashPassword(user.Password);
                 User dbUser = await _userRepository.GetByIdAsync(id);
                 if (dbUser == null) return BadRequest("User not found");
-                _mapper.Map(user, dbUser);
-                _userRepository.Update(dbUser);
-                await _userRepository.SaveAsync();
-                _logger.LogInformation($"{dbUser.Email} was updated");
-                return Ok(dbUser);
+                var authResult = await _authorizationService.AuthorizeAsync(User, dbUser, "OwnerPolicy");
+                if (authResult.Succeeded)
+                {
+                    _mapper.Map(user, dbUser);
+                    _userRepository.Update(dbUser);
+                    await _userRepository.SaveAsync();
+                    _logger.LogInformation($"{dbUser.Email} was updated");
+                    return Ok(dbUser);
+                }
+                else if (User.Identity.IsAuthenticated)
+                {
+                    return Forbid();
+                }
+                else
+                {
+                    return Challenge();
+                }
             }
             catch (Exception ex)
             {

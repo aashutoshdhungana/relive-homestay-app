@@ -23,6 +23,9 @@ using Relive.Server.API.Services;
 using Swashbuckle.AspNetCore.Swagger;
 using Relive.Server.API.Mapper;
 using AutoMapper;
+using Relive.Server.API.Authorization.Requirements;
+using Microsoft.AspNetCore.Authorization;
+using Relive.Server.API.Authorization.AuthorizationHandlers;
 
 namespace Relive.Server.API
 {
@@ -57,6 +60,15 @@ namespace Relive.Server.API
                 };
             });
 
+            services.AddAuthorization(options => 
+            {
+                options.AddPolicy("OwnerPolicy", policy =>
+                {
+                    policy.Requirements.Add(new OwnerRequirement());    
+                });
+            });
+
+            services.AddSingleton<IAuthorizationHandler, OwnerAuthorizationHandler>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Relive.Server.API", Version = "v1" });
