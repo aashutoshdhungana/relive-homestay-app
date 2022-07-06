@@ -2,7 +2,6 @@
 {
     public enum UserTypes
     {
-        Admin,
         Host,
         Traveler
     }

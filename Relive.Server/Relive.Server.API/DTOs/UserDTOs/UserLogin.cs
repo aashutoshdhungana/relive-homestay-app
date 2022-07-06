@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Relive.Server.Core.UserAggregate;
+using System.ComponentModel.DataAnnotations;
 
 namespace Relive.Server.API.DTOs.UserDTOs
 {
@@ -6,8 +7,9 @@ namespace Relive.Server.API.DTOs.UserDTOs
     {
         [Required]
         public string Email { get; set; }
-
         [Required]
         public string Password { get; set; }
+        [Required]
+        public UserTypes UserType { get; set; }
     }
 }

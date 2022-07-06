@@ -74,9 +74,6 @@ namespace Relive.Server.API.Controllers
                     userRegister.LastName,
                     userRegister.Email,
                     userRegister.PhoneNumber,
-                    userRegister.IsTraveller,
-                    userRegister.IsHost,
-                    userRegister.IsAdmin,
                     _userAuthenticationService.HashPassword(userRegister.Password)
                 );
                 await _userRepository.InsertAsync(user);
@@ -107,22 +104,15 @@ namespace Relive.Server.API.Controllers
                 User dbUser = await _userRepository.GetByIdAsync(id);
                 if (dbUser == null) return BadRequest("User not found");
                 var authResult = await _authorizationService.AuthorizeAsync(User, dbUser, "OwnerPolicy");
-                if (authResult.Succeeded)
+                if (!authResult.Succeeded)
                 {
-                    _mapper.Map(user, dbUser);
-                    _userRepository.Update(dbUser);
-                    await _userRepository.SaveAsync();
-                    _logger.LogInformation($"{dbUser.Email} was updated");
-                    return Ok(dbUser);
+                    return Forbid("User not authorized for the action");
                 }
-                else if (User.Identity.IsAuthenticated)
-                {
-                    return Forbid();
-                }
-                else
-                {
-                    return Challenge();
-                }
+                _mapper.Map(user, dbUser);
+                _userRepository.Update(dbUser);
+                await _userRepository.SaveAsync();
+                _logger.LogInformation($"{dbUser.Email} was updated");
+                return Ok(dbUser);
             }
             catch (Exception ex)
             {
@@ -140,6 +130,11 @@ namespace Relive.Server.API.Controllers
             {
                 User dbUser = await _userRepository.GetByIdAsync(id);
                 if (dbUser == null) return BadRequest("User not found");
+                var authResult = await _authorizationService.AuthorizeAsync(User, dbUser, "OwnerPolicy");
+                if (!authResult.Succeeded)
+                {
+                    return Forbid("User not authorized for the action");
+                }
                 _userRepository.Delete(dbUser);
                 await _userRepository.SaveAsync();
                 _logger.LogInformation($"{dbUser.Email} was deleted");
@@ -151,5 +146,7 @@ namespace Relive.Server.API.Controllers
                 return StatusCode(500, "Server Error");
             }
         }
+
+        // Method to verify email address and phone numbers needed
     }
 }
