@@ -2,9 +2,8 @@
 
 namespace Relive.Server.Core.Entities
 {
-    public class BaseEntity
+    public abstract class BaseEntity
     {
-        public Guid Id { get; set; }
-        public bool IsDeleted { get; private set; }
+        public virtual Guid Id { get; set; }
     }
 }

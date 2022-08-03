@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Relive.Server.Core.Entities.UserEntities;
+using Relive.Server.Core.UserAggregate;
 
 namespace Relive.Server.Infrastructure.Data
 {
@@ -9,8 +9,6 @@ namespace Relive.Server.Infrastructure.Data
             : base(options)
         {
         }
-        public DbSet<AdminUser> AdminUsers { get; set; }
-        public DbSet<HostUser> HostUsers { get; set; }
-        public DbSet<TravelerUser> TravelerUsers { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }

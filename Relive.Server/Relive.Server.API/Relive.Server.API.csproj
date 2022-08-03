@@ -19,8 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Relive.Server.Core1\Relive.Server.Core.csproj" />
-    <ProjectReference Include="..\Relive.Server.Infrastructure1\Relive.Server.Infrastructure.csproj" />
+    <ProjectReference Include="..\Relive.Server.Core\Relive.Server.Core.csproj" />
+    <ProjectReference Include="..\Relive.Server.Infrastructure\Relive.Server.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Relive.Server.Infrastructure.Data;
 
 namespace Relive.Server.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20220803085715_newmigration")]
+    partial class newmigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,15 +33,6 @@ namespace Relive.Server.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(35)
                         .HasColumnType("varchar(35)");
-
-                    b.Property<bool>("HasHostProfile")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("HasTravellerProfile")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
