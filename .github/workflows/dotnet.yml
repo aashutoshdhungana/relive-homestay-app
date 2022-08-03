@@ -21,5 +21,5 @@ jobs:
           dotnet restore
     - name: Build
       run: |
-          cd Relieve.Server
+          cd Relive.Server
           dotnet build --no-restore
