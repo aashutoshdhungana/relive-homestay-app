@@ -15,9 +15,11 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 5.0.x
-    - name: Move to folder containing solution
-      run: cd Relive.Server
     - name: Restore dependencies
-      run: dotnet restore
+      run: | 
+          cd Relive.Server 
+          dotnet restore
     - name: Build
-      run: dotnet build --no-restore
+      run: |
+          cd Relieve.Server
+          dotnet build --no-restore
