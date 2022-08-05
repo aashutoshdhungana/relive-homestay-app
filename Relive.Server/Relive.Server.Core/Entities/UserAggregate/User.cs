@@ -10,13 +10,19 @@ namespace Relive.Server.Core.UserAggregate
         [Required]
         [MaxLength(35)]
         public string FirstName { get; set; }
+
+        [MaxLength(2, ErrorMessage = "Middle Name can be atmost 2 characters long")]
+        public string MiddleName { get; set; }
+
         [Required]
         [MaxLength(35)]
         public string LastName { get; set; }
+
         [Required]
         [EmailAddress]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
+
         [Required]
         [DataType(DataType.PhoneNumber)]
         [MaxLength(10)]
@@ -33,14 +39,16 @@ namespace Relive.Server.Core.UserAggregate
         }
 
         public User(Guid id, string firstName, string lastName, string email,
-            string phone, string password)
+            string phone, string password, string createdOn, string createdBy)
         {
             Id = id;
-            FirstName = firstName.ToUpper();
-            LastName = lastName.ToUpper();
-            Email = email.ToUpper();
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email.ToLower();
             Phone = phone;
             Password = password;
+            CreatedBy = createdBy;
+            CreatedOn = createdOn;
         }
     }
 }
