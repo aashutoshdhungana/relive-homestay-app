@@ -9,7 +9,7 @@ namespace Relive.Server.API.Authorization.AuthorizationHandlers
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, OwnerRequirement requirement, BaseEntity resource)
         {
-            if (context.User.HasClaim("userid", resource.Id.ToString()))
+            if (context.User.HasClaim("userid", resource.OwnerId.ToString()))
             {
                 context.Succeed(requirement);
             }

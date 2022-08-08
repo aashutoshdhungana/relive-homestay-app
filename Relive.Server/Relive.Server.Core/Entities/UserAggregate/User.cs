@@ -39,7 +39,7 @@ namespace Relive.Server.Core.UserAggregate
         }
 
         public User(Guid id, string firstName, string lastName, string email,
-            string phone, string password, string createdOn, string createdBy)
+            string phone, string password, DateTime createdOn, string createdBy)
         {
             Id = id;
             FirstName = firstName;

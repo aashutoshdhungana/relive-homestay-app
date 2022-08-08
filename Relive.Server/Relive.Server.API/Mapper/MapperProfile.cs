@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
 using Relive.Server.API.DTOs.UserDTOs;
+using Relive.Server.Core.Entities;
+using ProfileAggregate = Relive.Server.Core.Entities.ProfileAggregate;
 using Relive.Server.Core.UserAggregate;
+using Relive.Server.API.DTOs.ProfileDTOs.Traveller;
 
 namespace Relive.Server.API.Mapper
 {
@@ -9,6 +12,7 @@ namespace Relive.Server.API.Mapper
         public MapperProfile()
         {
             CreateMap<UserUpdate, User>().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<TravellerCreate, ProfileAggregate.TravellerProfile>();
         }
     }
 }
