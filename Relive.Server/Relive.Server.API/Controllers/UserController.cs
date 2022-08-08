@@ -95,10 +95,11 @@ namespace Relive.Server.API.Controllers
                     userRegister.CreatedOn,
                     userRegister.CreatedBy
                 );
+                user.OwnerId = user.Id;
                 await _userRepository.InsertAsync(user);
                 await _userRepository.SaveAsync();
                 _logger.LogInformation($"User {user.Email} registered");
-                return Ok(user);
+                return Ok(new { Messgae = "Created Successfully", UserId = user.Id });
             }
             catch (Exception ex)
             {

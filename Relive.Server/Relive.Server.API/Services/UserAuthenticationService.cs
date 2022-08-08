@@ -28,6 +28,7 @@ namespace Relive.Server.API.Services
                 Expires = DateTime.UtcNow.AddMinutes(10),
                 Subject = new ClaimsIdentity(new Claim[]
                 {
+                    new Claim(ClaimTypes.Name, user.Email),
                     new Claim("userid", user.Id.ToString()),
                     new Claim(ClaimTypes.Role, userType.ToString())
                 }),

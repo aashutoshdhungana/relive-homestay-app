@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Relive.Server.Core.Entities.ProfileAggregate;
 using Relive.Server.Core.UserAggregate;
 
 namespace Relive.Server.Infrastructure.Data
@@ -10,5 +11,6 @@ namespace Relive.Server.Infrastructure.Data
         {
         }
         public DbSet<User> Users { get; set; }
+        public DbSet<TravellerProfile> TravellerProfiles { get; set; }
     }
 }
