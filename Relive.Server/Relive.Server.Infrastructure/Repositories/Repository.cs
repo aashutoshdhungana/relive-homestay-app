@@ -55,5 +55,10 @@ namespace Relive.Server.Infrastructure.Repositories
         {
             _context.Set<TEntity>().Update(entity);
         }
+
+        public Task<TEntity> GetByOwnerIdAsync(Guid id)
+        {
+            return _context.Set<TEntity>().Where(x => x.OwnerId == id).FirstOrDefaultAsync();
+        }
     }
 }

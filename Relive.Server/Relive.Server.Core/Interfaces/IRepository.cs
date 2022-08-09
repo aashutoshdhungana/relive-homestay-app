@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Relive.Server.Core.Interfaces
@@ -11,6 +12,8 @@ namespace Relive.Server.Core.Interfaces
 
         Task InsertAsync(TEntity entity);
 
+        Task<TEntity> GetByOwnerIdAsync(Guid id);
+        
         void Update(TEntity entity);
 
         Task DeleteAsync(object id);
