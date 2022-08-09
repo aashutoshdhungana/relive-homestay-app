@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Relive.Server.API.DTOs.ProfileDTOs.Traveller;
 using Relive.Server.Core.Entities.ProfileAggregate;
@@ -18,21 +17,19 @@ namespace Relive.Server.API.Controllers
     public class TravellerProfileController : ControllerBase
     {
         readonly IRepository<TravellerProfile> _travellerRepository;
-        readonly IRepository<User> _userRepository;
         readonly IAuthorizationService _authorizationService;
         readonly IMapper _mapper;
 
-        public TravellerProfileController(IRepository<TravellerProfile> travellerRepo, IRepository<User> userRepo, IAuthorizationService authorizationService, IMapper mapper)
+        public TravellerProfileController(IRepository<TravellerProfile> travellerRepo, IAuthorizationService authorizationService, IMapper mapper)
         {
             _travellerRepository = travellerRepo;
-            _userRepository = userRepo;
             _authorizationService = authorizationService;
             _mapper = mapper;
         }
 
         [Route("Create")]
         [HttpPost]
-        public async Task<IActionResult> CreateProfile([FromBody] TravellerCreate travellerDto)
+        public async Task<IActionResult> CreateProfile([FromBody] TravellerDTO travellerDto)
         {
             try
             {
@@ -41,7 +38,7 @@ namespace Relive.Server.API.Controllers
                     return BadRequest(Utilities.Utilities.GenerateValidationErrorResponse(ModelState));
                 }
 
-                TravellerProfile travellerProfile = _mapper.Map<TravellerCreate, TravellerProfile>(travellerDto);
+                TravellerProfile travellerProfile = _mapper.Map<TravellerDTO, TravellerProfile>(travellerDto);
                 travellerProfile.OwnerId = travellerDto.UserId;
                 // This check ensures the user is already created (valid token cannot exist without user)
                 var authResult = await _authorizationService.AuthorizeAsync(User, travellerProfile, "OwnerPolicy");
@@ -67,23 +64,135 @@ namespace Relive.Server.API.Controllers
         [AllowAnonymous]
         [Route("{Id:Guid}")]
         [HttpGet]
-        public IActionResult GetProfileById()
+        public async Task<IActionResult> GetProfileById(Guid Id)
         {
-            return Ok("Profile found");
+            try
+            {
+                TravellerProfile profile = await _travellerRepository.GetByIdAsync(Id);
+                if (profile == null)
+                {
+                    return NotFound();
+                }
+                TravellerDTO travellerDTO = _mapper.Map<TravellerProfile, TravellerDTO>(profile);
+                return Ok(travellerDTO);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
         }
 
-        [Route("Edit/{Id:Guid}")]
+        [AllowAnonymous]
+        [Route("User/{UserId:Guid}")]
+        [HttpGet]
+        public async Task<IActionResult> GetProfileByUserId(Guid UserId)
+        {
+            try
+            {
+                TravellerProfile profile = await _travellerRepository.GetByOwnerIdAsync(UserId);
+                if (profile == null)
+                {
+                    return NotFound();
+                }
+                TravellerDTO travellerDTO = _mapper.Map<TravellerProfile, TravellerDTO>(profile);
+                return Ok(travellerDTO);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+        }
+
+        [Route("Edit/User/{UserId:Guid}")]
         [HttpPatch]
-        public IActionResult EditProfile()
+        public async Task<IActionResult> EditProfileByUserId(Guid UserId, [FromBody] TravellerEdit travellerEdit)
         {
-            return Ok("Profile Edited Successfuly");
+            try
+            {
+                TravellerProfile dbProfile = await _travellerRepository.GetByOwnerIdAsync(UserId);
+                if (dbProfile == null)
+                {
+                    return BadRequest("Profile not found");
+                }
+                var authResult = await _authorizationService.AuthorizeAsync(User, dbProfile, "OwnerPolicy");
+                if (!authResult.Succeeded)
+                {
+                    return Forbid("Bearer");
+                }
+                _mapper.Map(travellerEdit, dbProfile);
+                _travellerRepository.Update(dbProfile);
+                var saveTask =  _travellerRepository.SaveAsync();
+                TravellerDTO travellerDTO = _mapper.Map<TravellerProfile, TravellerDTO>(dbProfile);
+                await saveTask;
+                return Ok(travellerDTO);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
         }
 
+        [HttpPatch]
+        [Route("Edit/{Id:Guid}")]
+        public async Task<IActionResult> EditById(Guid Id, TravellerEdit travellerEdit)
+        {
+            TravellerProfile dbProfile = await _travellerRepository.GetByIdAsync(Id);
+            if (dbProfile == null)
+            {
+                return BadRequest("Profile not found");
+            }
+            var authResult = await _authorizationService.AuthorizeAsync(User, dbProfile, "OwnerPolicy");
+            if (!authResult.Succeeded)
+            {
+                return Forbid("Bearer");
+            }
+            _mapper.Map(travellerEdit, dbProfile);
+            _travellerRepository.Update(dbProfile);
+            var saveTask = _travellerRepository.SaveAsync();
+            TravellerDTO travellerDTO = _mapper.Map<TravellerProfile, TravellerDTO>(dbProfile);
+            await saveTask;
+            return Ok(travellerDTO);
+        }
         [Route("Delete/{Id:Guid}")]
         [HttpDelete]
-        public IActionResult DeleteProfile()
+        public async Task<IActionResult> DeleteProfileById(Guid Id)
         {
-            return Ok("Profile Created Successfuly");
+            try
+            {
+                TravellerProfile profile = await _travellerRepository.GetByIdAsync(Id);
+                if (profile == null)
+                {
+                    return NotFound();
+                }
+                await _travellerRepository.DeleteAsync(profile);
+                await _travellerRepository.SaveAsync();
+                return Ok("Profile Created Successfuly");
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+        }
+
+        [Route("Delete/User/{UserId:Guid}")]
+        [HttpDelete]
+        public async Task<IActionResult> DeleteProfileByUserId(Guid UserId)
+        {
+            try
+            {
+                TravellerProfile profile = await _travellerRepository.GetByOwnerIdAsync(UserId);
+                if (profile == null)
+                {
+                    return NotFound();
+                }
+                await _travellerRepository.DeleteAsync(profile);
+                await _travellerRepository.SaveAsync();
+                return Ok("Delete Successfuly");
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
         }
     }
 }

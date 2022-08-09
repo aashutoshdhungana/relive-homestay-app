@@ -12,7 +12,9 @@ namespace Relive.Server.API.Mapper
         public MapperProfile()
         {
             CreateMap<UserUpdate, User>().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
-            CreateMap<TravellerCreate, ProfileAggregate.TravellerProfile>();
+            CreateMap<TravellerDTO, ProfileAggregate.TravellerProfile>();
+            CreateMap<TravellerEdit, ProfileAggregate.TravellerProfile>().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<ProfileAggregate.TravellerProfile, TravellerDTO>();
         }
     }
 }

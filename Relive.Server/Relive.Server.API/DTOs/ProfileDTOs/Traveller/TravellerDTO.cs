@@ -1,11 +1,10 @@
-﻿using Relive.Server.Core.Entities.ProfileAggregate;
-using Relive.Server.Core.ValidationAttributes;
+﻿using Relive.Server.Core.ValidationAttributes;
 using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Relive.Server.API.DTOs.ProfileDTOs.Traveller
 {
-    public class TravellerCreate
+    public class TravellerDTO
     {
         [Required]
         public string DisplayName { get; set; }
