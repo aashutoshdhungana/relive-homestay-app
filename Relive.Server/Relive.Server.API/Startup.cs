@@ -29,6 +29,7 @@ using Relive.Server.API.Authorization.AuthorizationHandlers;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 using Relive.Server.Core.Entities.ProfileAggregate;
+using Relive.Server.API.Middlewares;
 
 namespace Relive.Server.API
 {
@@ -120,11 +121,9 @@ namespace Relive.Server.API
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Relive.Server.API v1"));
             }
-
+            app.UseMiddleware<ExceptionHandler>();
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseAuthentication();
             app.UseAuthorization();
 

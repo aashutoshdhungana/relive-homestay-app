@@ -41,71 +41,57 @@ namespace Relive.Server.API.Controllers
         [Route("Login")]
         public async Task<IActionResult> Login([FromBody] UserLogin userLogin)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                if (!ModelState.IsValid)
-                {
-                    _logger.LogError("Validation Error");
-                    return BadRequest(Utilities.Utilities.GenerateValidationErrorResponse(ModelState));
-                }
-                BaseSpecification<User> specification = new BaseSpecification<User>(x => x.Email == userLogin.Email.ToUpper());
-                var dbUser = (await _userRepository.GetAsync(specification)).FirstOrDefault();
-                if (dbUser == null)
-                {
-                    _logger.LogError("User not found");
-                    return BadRequest(Utilities.Utilities.GenerateGeneralErrorResponse(new string[] {"User with email not found"}));
-                }
-
-                string hashedPassword = _userAuthenticationService.HashPassword(userLogin.Password);
-                if (!(hashedPassword == dbUser.Password))
-                {
-                    return BadRequest(Utilities.Utilities.GenerateGeneralErrorResponse(new string[] { "Email and Password doesnot match" }));
-                }
-
-                string token = _userAuthenticationService.GenerateToken(dbUser, UserTypes.Traveler);
-                _logger.LogInformation($"{dbUser.Email} logged on");
-                return Ok(new { dbUser, token });
+                _logger.LogError("Validation Error");
+                return BadRequest(Utilities.Utilities.GenerateValidationErrorResponse(ModelState));
             }
-            catch (Exception ex)
+            BaseSpecification<User> specification = new BaseSpecification<User>(x => x.Email == userLogin.Email.ToUpper());
+            var dbUser = (await _userRepository.GetAsync(specification)).FirstOrDefault();
+            if (dbUser == null)
             {
-                _logger.LogError($"{ex}");
-                return StatusCode(500, new string[] { "Server Error" });
+                _logger.LogError("User not found");
+                return BadRequest(Utilities.Utilities.GenerateGeneralErrorResponse(new string[] { "User with email not found" }));
             }
+
+            string hashedPassword = _userAuthenticationService.HashPassword(userLogin.Password);
+            if (!(hashedPassword == dbUser.Password))
+            {
+                return BadRequest(Utilities.Utilities.GenerateGeneralErrorResponse(new string[] { "Email and Password doesnot match" }));
+            }
+
+            string token = _userAuthenticationService.GenerateToken(dbUser, UserTypes.Traveler);
+            UserLoginResponse response = _mapper.Map<User, UserLoginResponse>(dbUser);
+            response.JwtToken = token;
+            _logger.LogInformation($"{dbUser.Email} logged on");
+            return Ok(response);
         }
 
         [HttpPost]
         [Route("Register")]
         public async Task<IActionResult> RegisterAsync([FromBody] UserRegister userRegister)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                if (!ModelState.IsValid)
-                {
-                    _logger.LogError("Validation error");
-                    return BadRequest(Utilities.Utilities.GenerateValidationErrorResponse(ModelState));
-                }
-                User user = new User
-                (
-                    Guid.NewGuid(),
-                    Utilities.Utilities.TrimAndCapitalize(userRegister.FirstName),
-                    Utilities.Utilities.TrimAndCapitalize(userRegister.LastName),
-                    userRegister.Email,
-                    userRegister.Phone,
-                    _userAuthenticationService.HashPassword(userRegister.Password),
-                    userRegister.CreatedOn,
-                    userRegister.CreatedBy
-                );
-                user.OwnerId = user.Id;
-                await _userRepository.InsertAsync(user);
-                await _userRepository.SaveAsync();
-                _logger.LogInformation($"User {user.Email} registered");
-                return Ok(new { Messgae = "Created Successfully", UserId = user.Id });
+                _logger.LogError("Validation error");
+                return BadRequest(Utilities.Utilities.GenerateValidationErrorResponse(ModelState));
             }
-            catch (Exception ex)
-            {
-                _logger.LogError($"{ex}");
-                return StatusCode(500, Utilities.Utilities.GenerateGeneralErrorResponse(new string[] { "Server Error" }));
-            }
+            User user = new User
+            (
+                Guid.NewGuid(),
+                Utilities.Utilities.TrimAndCapitalize(userRegister.FirstName),
+                Utilities.Utilities.TrimAndCapitalize(userRegister.LastName),
+                userRegister.Email,
+                userRegister.Phone,
+                _userAuthenticationService.HashPassword(userRegister.Password),
+                userRegister.CreatedOn,
+                userRegister.CreatedBy
+            );
+            user.OwnerId = user.Id;
+            await _userRepository.InsertAsync(user);
+            await _userRepository.SaveAsync();
+            _logger.LogInformation($"User {user.Email} registered");
+            return Ok(new { Messgae = "Created Successfully", UserId = user.Id });
         }
 
         [Authorize]
@@ -113,32 +99,24 @@ namespace Relive.Server.API.Controllers
         [Route("Edit/{id:Guid}")]
         public async Task<IActionResult> UpdateUserAsync(Guid id, [FromBody] UserUpdate user)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                if (!ModelState.IsValid)
-                {
-                    _logger.LogError("Modeinvlaid");
-                    return BadRequest(Utilities.Utilities.GenerateValidationErrorResponse(ModelState));
-                }
-                user.Password = (user.Password == null) ? null : _userAuthenticationService.HashPassword(user.Password);
-                User dbUser = await _userRepository.GetByIdAsync(id);
-                if (dbUser == null) return BadRequest("User not found");
-                var authResult = await _authorizationService.AuthorizeAsync(User, dbUser, "OwnerPolicy");
-                if (!authResult.Succeeded)
-                {
-                    return Forbid("User not authorized for the action");
-                }
-                _mapper.Map(user, dbUser);
-                _userRepository.Update(dbUser);
-                await _userRepository.SaveAsync();
-                _logger.LogInformation($"{dbUser.Email} was updated");
-                return Ok(dbUser);
+                _logger.LogError("Model invlaid");
+                return BadRequest(Utilities.Utilities.GenerateValidationErrorResponse(ModelState));
             }
-            catch (Exception ex)
+            user.Password = (user.Password == null) ? null : _userAuthenticationService.HashPassword(user.Password);
+            User dbUser = await _userRepository.GetByIdAsync(id);
+            if (dbUser == null) return BadRequest("User not found");
+            var authResult = await _authorizationService.AuthorizeAsync(User, dbUser, "OwnerPolicy");
+            if (!authResult.Succeeded)
             {
-                _logger.LogError($"{ex}");
-                return StatusCode(500, Utilities.Utilities.GenerateGeneralErrorResponse(new string[] { "Server Error" }));
+                return Forbid("User not authorized for the action");
             }
+            _mapper.Map(user, dbUser);
+            _userRepository.Update(dbUser);
+            await _userRepository.SaveAsync();
+            _logger.LogInformation($"{dbUser.Email} was updated");
+            return Ok(dbUser);
         }
 
         [Authorize]
@@ -146,25 +124,17 @@ namespace Relive.Server.API.Controllers
         [Route("Delete/{id:Guid}")]
         public async Task<IActionResult> DeleteUserAsync(Guid id)
         {
-            try
+            User dbUser = await _userRepository.GetByIdAsync(id);
+            if (dbUser == null) return BadRequest("User not found");
+            var authResult = await _authorizationService.AuthorizeAsync(User, dbUser, "OwnerPolicy");
+            if (!authResult.Succeeded)
             {
-                User dbUser = await _userRepository.GetByIdAsync(id);
-                if (dbUser == null) return BadRequest("User not found");
-                var authResult = await _authorizationService.AuthorizeAsync(User, dbUser, "OwnerPolicy");
-                if (!authResult.Succeeded)
-                {
-                    return Forbid("User not authorized for the action");
-                }
-                _userRepository.Delete(dbUser);
-                await _userRepository.SaveAsync();
-                _logger.LogInformation($"{dbUser.Email} was deleted");
-                return Ok("User deleted successfully");
+                return Forbid("User not authorized for the action");
             }
-            catch (Exception ex)
-            {
-                _logger.LogError($"{ex}");
-                return StatusCode(500, Utilities.Utilities.GenerateGeneralErrorResponse(new string[] { "Server Error" }));
-            }
+            _userRepository.Delete(dbUser);
+            await _userRepository.SaveAsync();
+            _logger.LogInformation($"{dbUser.Email} was deleted");
+            return Ok("User deleted successfully");
         }
     }
 }
