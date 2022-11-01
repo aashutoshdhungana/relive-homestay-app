@@ -12,6 +12,10 @@ using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
+using Relive.Server.API.DTOs.ErrorDTOs;
+using Relive.Server.Core.Entities.Errors;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Relive.Server.API.Controllers
 {
@@ -24,7 +28,7 @@ namespace Relive.Server.API.Controllers
         private readonly IRepository<User> _userRepository;
         private readonly ILogger<User> _logger;
         private readonly IMapper _mapper;
-        public UserController(UserAuthenticationService userAuthenticationService, IRepository<User> userRepository,IMapper mapper, ILogger<User> logger, IAuthorizationService authorizationService)
+        public UserController(UserAuthenticationService userAuthenticationService, IRepository<User> userRepository, IMapper mapper, ILogger<User> logger, IAuthorizationService authorizationService)
         {
             _userAuthenticationService = userAuthenticationService;
             _userRepository = userRepository;
@@ -39,17 +43,25 @@ namespace Relive.Server.API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogError("Validation Error");
+                    return BadRequest(Utilities.Utilities.GenerateValidationErrorResponse(ModelState));
+                }
                 BaseSpecification<User> specification = new BaseSpecification<User>(x => x.Email == userLogin.Email.ToUpper());
                 var dbUser = (await _userRepository.GetAsync(specification)).FirstOrDefault();
                 if (dbUser == null)
                 {
-                    return BadRequest("User of the provided email doesnot exist");
+                    _logger.LogError("User not found");
+                    return BadRequest(Utilities.Utilities.GenerateGeneralErrorResponse(new string[] {"User with email not found"}));
                 }
+
                 string hashedPassword = _userAuthenticationService.HashPassword(userLogin.Password);
                 if (!(hashedPassword == dbUser.Password))
                 {
-                    return BadRequest("The Email and Password cobination incorrect");
+                    return BadRequest(Utilities.Utilities.GenerateGeneralErrorResponse(new string[] { "Email and Password doesnot match" }));
                 }
+
                 string token = _userAuthenticationService.GenerateToken(dbUser, UserTypes.Traveler);
                 _logger.LogInformation($"{dbUser.Email} logged on");
                 return Ok(new { dbUser, token });
@@ -57,7 +69,7 @@ namespace Relive.Server.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"{ex}");
-                return StatusCode(500, "Server Error");
+                return StatusCode(500, new string[] { "Server Error" });
             }
         }
 
@@ -67,24 +79,32 @@ namespace Relive.Server.API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogError("Validation error");
+                    return BadRequest(Utilities.Utilities.GenerateValidationErrorResponse(ModelState));
+                }
                 User user = new User
                 (
                     Guid.NewGuid(),
-                    userRegister.FirstName,
-                    userRegister.LastName,
+                    Utilities.Utilities.TrimAndCapitalize(userRegister.FirstName),
+                    Utilities.Utilities.TrimAndCapitalize(userRegister.LastName),
                     userRegister.Email,
-                    userRegister.PhoneNumber,
-                    _userAuthenticationService.HashPassword(userRegister.Password)
+                    userRegister.Phone,
+                    _userAuthenticationService.HashPassword(userRegister.Password),
+                    userRegister.CreatedOn,
+                    userRegister.CreatedBy
                 );
+                user.OwnerId = user.Id;
                 await _userRepository.InsertAsync(user);
                 await _userRepository.SaveAsync();
                 _logger.LogInformation($"User {user.Email} registered");
-                return Ok(user);
+                return Ok(new { Messgae = "Created Successfully", UserId = user.Id });
             }
             catch (Exception ex)
             {
                 _logger.LogError($"{ex}");
-                return StatusCode(500, "Server Error");
+                return StatusCode(500, Utilities.Utilities.GenerateGeneralErrorResponse(new string[] { "Server Error" }));
             }
         }
 
@@ -97,8 +117,8 @@ namespace Relive.Server.API.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError("Modelstate invlaid");
-                    return BadRequest();
+                    _logger.LogError("Modeinvlaid");
+                    return BadRequest(Utilities.Utilities.GenerateValidationErrorResponse(ModelState));
                 }
                 user.Password = (user.Password == null) ? null : _userAuthenticationService.HashPassword(user.Password);
                 User dbUser = await _userRepository.GetByIdAsync(id);
@@ -117,7 +137,7 @@ namespace Relive.Server.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"{ex}");
-                return StatusCode(500,"Server Error");
+                return StatusCode(500, Utilities.Utilities.GenerateGeneralErrorResponse(new string[] { "Server Error" }));
             }
         }
 
@@ -143,10 +163,8 @@ namespace Relive.Server.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"{ex}");
-                return StatusCode(500, "Server Error");
+                return StatusCode(500, Utilities.Utilities.GenerateGeneralErrorResponse(new string[] { "Server Error" }));
             }
         }
-
-        // Method to verify email address and phone numbers needed
     }
 }

@@ -26,6 +26,9 @@ using AutoMapper;
 using Relive.Server.API.Authorization.Requirements;
 using Microsoft.AspNetCore.Authorization;
 using Relive.Server.API.Authorization.AuthorizationHandlers;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
+using Relive.Server.Core.Entities.ProfileAggregate;
 
 namespace Relive.Server.API
 {
@@ -95,7 +98,9 @@ namespace Relive.Server.API
                 });
             });
 
+            services.AddSingleton<IFileProvider>(new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Images")));
             services.AddScoped<IRepository<User>, Repository<User>>();
+            services.AddScoped<IRepository<TravellerProfile>, Repository<TravellerProfile>>();
             services.AddScoped<UserAuthenticationService>();
 
             var mapConfig = new MapperConfiguration(options =>

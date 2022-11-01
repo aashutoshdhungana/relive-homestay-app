@@ -1,19 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Relive.Server.Core.UserAggregate;
+using System.ComponentModel.DataAnnotations;
 
 namespace Relive.Server.API.DTOs.UserDTOs
 {
-    public class UserRegister
+    public class UserRegister: User
     {
         [Required]
-        public string FirstName { get; set; }
-        [Required]
-        public string LastName { get; set; }
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
-        [Required]
-        public string PhoneNumber { get; set; }
-        [Required]
-        public string Password { get; set; }
+        [MinLength(8)]
+        [DataType(DataType.Password)]
+        [Compare("Password", ErrorMessage = "The passwords donot match")]
+        public string ConfirmPassword { get; set; }
     }
 }

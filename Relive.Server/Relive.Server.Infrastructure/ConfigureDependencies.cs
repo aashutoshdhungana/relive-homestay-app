@@ -12,8 +12,8 @@ namespace Relive.Server.Infrastructure
         {
             services.AddDbContext<ApplicationContext>(options =>
             {
-                string connectionString = configuration.GetConnectionString("MySqlConnection");
-                options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+                string connectionString = configuration.GetConnectionString("SqlServerConnection");
+                options.UseSqlServer(connectionString);
             });
         }
     }

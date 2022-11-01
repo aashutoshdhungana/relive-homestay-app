@@ -9,7 +9,5 @@ namespace Relive.Server.API.DTOs.UserDTOs
         public string Email { get; set; }
         [Required]
         public string Password { get; set; }
-        [Required]
-        public UserTypes UserType { get; set; }
     }
 }
