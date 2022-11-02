@@ -49,5 +49,14 @@ namespace Relive.Server.API.Services
                 numBytesRequested: 256 / 8));
             return hashed;
         }
+
+        public bool CompareHash(string password, string hash)
+        {
+            if (HashPassword(password) != hash)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }
