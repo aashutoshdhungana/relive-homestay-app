@@ -1,21 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Relive.Server.API.DTOs.UserDTOs;
-using System.Threading.Tasks;
-using Relive.Server.Core;
-using System;
 using Relive.Server.API.Services;
-using Relive.Server.Core.UserAggregate;
 using Relive.Server.Core.Interfaces;
 using Relive.Server.Core.Specifications;
+using Relive.Server.Core.UserAggregate;
+using System;
 using System.Linq;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Logging;
-using AutoMapper;
-using Relive.Server.API.DTOs.ErrorDTOs;
-using Relive.Server.Core.Entities.Errors;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Threading.Tasks;
 
 namespace Relive.Server.API.Controllers
 {
@@ -53,7 +47,7 @@ namespace Relive.Server.API.Controllers
                 if (dbUser == null)
                 {
                     _logger.LogError("User not found");
-                    return BadRequest(Utilities.Utilities.GenerateGeneralErrorResponse(new string[] {"User with email not found"}));
+                    return BadRequest(Utilities.Utilities.GenerateGeneralErrorResponse(new string[] { "User with email not found" }));
                 }
 
                 string hashedPassword = _userAuthenticationService.HashPassword(userLogin.Password);
