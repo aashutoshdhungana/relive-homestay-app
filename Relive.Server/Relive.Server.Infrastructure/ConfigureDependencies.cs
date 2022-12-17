@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Relive.Server.Infrastructure.Data;
+using System;
 
 namespace Relive.Server.Infrastructure
 {
@@ -12,8 +13,12 @@ namespace Relive.Server.Infrastructure
         {
             services.AddDbContext<ApplicationContext>(options =>
             {
-                string connectionString = configuration.GetConnectionString("SqlServerConnection");
-                options.UseSqlServer(connectionString);
+                //string connectionString = configuration.GetConnectionString("SqlServerConnection");
+                //options.UseSqlServer(connectionString);
+                var folder = Environment.SpecialFolder.LocalApplicationData;
+                var path = Environment.GetFolderPath(folder);
+                var dbPath = System.IO.Path.Join(path, "relive.db");
+                options.UseSqlite($"Data Source={dbPath}");
             });
         }
     }
