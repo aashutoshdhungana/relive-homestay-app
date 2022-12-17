@@ -35,8 +35,6 @@ namespace Relive.Server.API.Controllers
         [Route("Login")]
         public async Task<IActionResult> Login([FromBody] UserLogin userLogin)
         {
-            try
-            {
                 if (!ModelState.IsValid)
                 {
                     _logger.LogError("Validation Error");
